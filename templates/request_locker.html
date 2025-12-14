@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Request Locker - Locker Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .request-container {
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+
+    .request-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .request-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .request-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .request-header h1 {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .request-header p {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .availability-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .availability-card .big-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+
+    .availability-card p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .info-section {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .info-section h3 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .info-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-section li {
+        padding: 0.5rem 0;
+        color: #555;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-section li:before {
+        content: "✓";
+        display: inline-block;
+        width: 1.5rem;
+        height: 1.5rem;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 1.5rem;
+        margin-right: 0.75rem;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .action-section {
+        text-align: center;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .submit-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .back-link {
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .back-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .back-link a:hover {
+        color: #764ba2;
+    }
+
+    .no-availability {
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .no-availability h3 {
+        color: #856404;
+        margin-bottom: 0.5rem;
+    }
+
+    .no-availability p {
+        color: #856404;
+    }
+
+    @media (max-width: 768px) {
+        .request-card {
+            padding: 1.5rem;
+        }
+
+        .availability-card .big-number {
+            font-size: 2.5rem;
+        }
+
+        .submit-btn {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="request-container">
+    <div class="request-card">
+        <div class="request-header">
+            <div class="request-icon">📍</div>
+            <h1>Request a Locker</h1>
+            <p>Get secure storage space</p>
+        </div>
+
+        {% if available_count > 0 %}
+            <div class="availability-card">
+                <p>Lockers Available</p>
+                <div class="big-number">{{ available_count }}</div>
+                <p>Ready for allocation</p>
+            </div>
+
+            <div class="info-section">
+                <h3>Locker Features</h3>
+                <ul>
+                    <li>Secure digital locking system</li>
+                    <li>24/7 monitored access</li>
+                    <li>Various size options</li>
+                    <li>Convenient locations</li>
+                    <li>Individual access codes</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h3>What to Know</h3>
+                <ul>
+                    <li>One locker per user at a time</li>
+                    <li>Automatic assignment from available pool</li>
+                    <li>Can be released anytime</li>
+                    <li>Location assigned by system</li>
+                </ul>
+            </div>
+
+            <div class="action-section">
+                <form method="POST" action="{{ url_for('request_locker') }}">
+                    <button type="submit" class="submit-btn">Allocate Locker to Me</button>
+                </form>
+                <div class="back-link">
+                    <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+                </div>
+            </div>
+        {% else %}
+            <div class="no-availability">
+                <h3>⚠️ No Lockers Available</h3>
+                <p>Unfortunately, all lockers are currently allocated. Please try again later or contact support.</p>
+            </div>
+
+            <div class="back-link">
+                <a href="{{ url_for('dashboard') }}" class="btn-primary">← Back to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
