@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Locker Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: white;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        color: #666;
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .locker-section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .locker-section h2 {
+        margin-bottom: 1.5rem;
+        color: #333;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 1rem;
+    }
+
+    .locker-details {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .locker-detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .locker-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .locker-detail-label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .locker-detail-value {
+        color: #667eea;
+        font-weight: 500;
+    }
+
+    .locker-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-allocated {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-available {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .no-locker {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .no-locker p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 10px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s;
+    }
+
+    @media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-primary, .btn-danger {
+            width: 100%;
+            text-align: center;
+        }
+
+        .locker-detail-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Welcome to Your Dashboard</h1>
+    <p>Manage your secure locker access</p>
+</div>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-value">{{ total_lockers }}</div>
+        <div class="stat-label">Total Lockers</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ available_lockers }}</div>
+        <div class="stat-label">Available Lockers</div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width: {{ (available_lockers / total_lockers * 100) if total_lockers > 0 else 0 }}%"></div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">🔒</div>
+        <div class="stat-value">{{ allocated_lockers }}</div>
+        <div class="stat-label">Allocated Lockers</div>
+    </div>
+</div>
+
+<div class="locker-section">
+    <h2>Your Allocated Locker</h2>
+
+    {% if user_locker %}
+        <div class="locker-details">
+            <div class="locker-detail-row">
+                <span class="locker-detail-label">Locker Number</span>
+                <span class="locker-detail-value">{{ user_locker.locker_number }}</span>
+            </div>
+            <div class="locker-detail-row">
+                <span class="locker-detail-label">Status</span>
+                <span class="badge badge-allocated">Allocated</span>
+            </div>
+            <div class="locker-detail-row">
+                <span class="locker-detail-label">Location</span>
+                <span class="locker-detail-value">{{ user_locker.location }}</span>
+            </div>
+            <div class="locker-detail-row">
+                <span class="locker-detail-label">Size</span>
+                <span class="locker-detail-value">{{ user_locker.size }}</span>
+            </div>
+            <div class="locker-detail-row">
+                <span class="locker-detail-label">Allocated On</span>
+                <span class="locker-detail-value">{{ user_locker.allocated_at.strftime('%B %d, %Y') }}</span>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <form method="POST" action="{{ url_for('release_locker') }}" style="width: 100%; max-width: 200px;">
+                <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to release this locker?')">
+                    Release Locker
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="no-locker">
+            <p>You don't have an allocated locker yet.</p>
+            <div class="action-buttons">
+                <a href="{{ url_for('request_locker') }}" class="btn-primary">Request a Locker</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<div class="locker-section">
+    <h2>System Status</h2>
+    <div class="locker-details">
+        <div class="locker-detail-row">
+            <span class="locker-detail-label">Total Capacity</span>
+            <span class="locker-detail-value">{{ total_lockers }} lockers</span>
+        </div>
+        <div class="locker-detail-row">
+            <span class="locker-detail-label">Occupancy Rate</span>
+            <span class="locker-detail-value">{{ "%.1f"|format((allocated_lockers / total_lockers * 100) if total_lockers > 0 else 0) }}%</span>
+        </div>
+        <div class="locker-detail-row">
+            <span class="locker-detail-label">Available for Allocation</span>
+            <span class="badge badge-available">{{ available_lockers }} lockers</span>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
